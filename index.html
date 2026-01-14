@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ヨット（ヤッツィー）</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 30px 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        .game-info {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .rolls-left {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.2rem;
+        }
+
+        .dice-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .dice {
+            width: 80px;
+            height: 80px;
+            border: none;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            background: linear-gradient(145deg, #ffffff, #e6e6e6);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+            position: relative;
+            box-shadow: 
+                0 8px 16px rgba(0, 0, 0, 0.15),
+                inset 0 2px 4px rgba(255, 255, 255, 0.8),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+            transform-style: preserve-3d;
+        }
+
+        .dice::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 12px;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.3), rgba(0, 0, 0, 0.1));
+            pointer-events: none;
+        }
+
+        .dice:hover {
+            transform: scale(1.1) translateY(-3px);
+            box-shadow: 
+                0 12px 24px rgba(102, 126, 234, 0.4),
+                inset 0 2px 4px rgba(255, 255, 255, 0.9),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .dice.held {
+            background: linear-gradient(145deg, #ffd700, #ffb300);
+            box-shadow: 
+                0 8px 16px rgba(255, 165, 0, 0.3),
+                inset 0 2px 4px rgba(255, 255, 255, 0.5),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+            transform: scale(1.05);
+        }
+
+        .dice.held::before {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.4), rgba(255, 165, 0, 0.2));
+        }
+
+        .dice.rolling {
+            animation: roll 0.5s ease-in-out;
+        }
+
+        @keyframes roll {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(90deg) scale(0.9); }
+            50% { transform: rotate(180deg) scale(1.1); }
+            75% { transform: rotate(270deg) scale(0.9); }
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            color: white;
+        }
+
+        .roll-button {
+            background: #667eea;
+        }
+
+        .roll-button:hover:not(:disabled) {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .roll-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .reset-button {
+            background: #f56565;
+        }
+
+        .reset-button:hover {
+            background: #e53e3e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 101, 101, 0.4);
+        }
+
+        .scoreboard {
+            margin-top: 40px;
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+        }
+
+        .scoreboard h2 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f7f7f7;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .score-item:hover:not(.recorded) {
+            background: #e8e8ff;
+            transform: translateX(5px);
+        }
+
+        .score-item.recorded {
+            background: #d4edda;
+            cursor: default;
+        }
+
+        .score-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .score-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .score-item.recorded .score-value {
+            color: #28a745;
+        }
+
+        .current-score {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .total-score {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* 紙吹雪のスタイル */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #ffd700;
+            animation: confetti-fall linear forwards;
+            z-index: 1000;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* ランキングモーダル */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #667eea;
+            margin: 0;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 20px;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .ranking-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f7f7f7;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .ranking-item.top1 {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            border-left-color: #ffa500;
+        }
+
+        .ranking-item.top2 {
+            background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+            border-left-color: #808080;
+        }
+
+        .ranking-item.top3 {
+            background: linear-gradient(135deg, #cd7f32, #e6a85c);
+            border-left-color: #8b4513;
+        }
+
+        .ranking-rank {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            min-width: 40px;
+        }
+
+        .ranking-score {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .ranking-date {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .ranking-button {
+            background: #667eea;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .ranking-button:hover {
+            background: #5568d3;
+        }
+
+        @media (max-width: 480px) {
+            .dice {
+                width: 60px;
+                height: 60px;
+                font-size: 2rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            button {
+                padding: 12px 24px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 ヨット（ヤッツィー）🎲</h1>
+        
+        <div class="game-info">
+            <div class="rolls-left">残り回数: <span id="rollsLeft">3</span>回</div>
+        </div>
+
+        <div class="dice-container">
+            <div class="dice" id="dice0" onclick="toggleHold(0)">⚀</div>
+            <div class="dice" id="dice1" onclick="toggleHold(1)">⚀</div>
+            <div class="dice" id="dice2" onclick="toggleHold(2)">⚀</div>
+            <div class="dice" id="dice3" onclick="toggleHold(3)">⚀</div>
+            <div class="dice" id="dice4" onclick="toggleHold(4)">⚀</div>
+        </div>
+
+        <div class="button-container">
+            <button class="roll-button" id="rollButton" onclick="rollDice()">サイコロを振る</button>
+            <button class="reset-button" onclick="resetGame()">ゲームをリセット</button>
+            <button class="roll-button ranking-button" onclick="showRanking()">ランキング</button>
+        </div>
+
+        <div class="scoreboard">
+            <h2>スコアボード</h2>
+            <div id="scoreboard"></div>
+            <div class="total-score">
+                合計スコア: <span id="totalScore">0</span>点
+            </div>
+        </div>
+    </div>
+
+    <!-- ランキングモーダル -->
+    <div id="rankingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🏆 スコアランキング 🏆</h2>
+                <span class="close" onclick="closeRanking()">&times;</span>
+            </div>
+            <div id="rankingList"></div>
+        </div>
+    </div>
+
+    <script>
+        // ゲーム状態
+        let dice = [1, 1, 1, 1, 1];
+        let held = [false, false, false, false, false];
+        let rollsLeft = 3;
+        let scores = {
+            'ワンペア': null,
+            'ツーペア': null,
+            'スリー・オブ・ア・カインド': null,
+            'フォー・オブ・ア・カインド': null,
+            'フルハウス': null,
+            'スモールストレート': null,
+            'ラージストレート': null,
+            'ヨット': null,
+            'チャンス': null
+        };
+
+        // サイコロの目を表示する関数
+        const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+
+        function updateDiceDisplay() {
+            for (let i = 0; i < 5; i++) {
+                const diceElement = document.getElementById(`dice${i}`);
+                diceElement.textContent = diceFaces[dice[i] - 1];
+                if (held[i]) {
+                    diceElement.classList.add('held');
+                } else {
+                    diceElement.classList.remove('held');
+                }
+            }
+        }
+
+        // サイコロを振る
+        function rollDice() {
+            if (rollsLeft <= 0) {
+                alert('振り直し回数がなくなりました。スコアを記録してください。');
+                return;
+            }
+
+            for (let i = 0; i < 5; i++) {
+                if (!held[i]) {
+                    const diceElement = document.getElementById(`dice${i}`);
+                    diceElement.classList.add('rolling');
+                    setTimeout(() => {
+                        dice[i] = Math.floor(Math.random() * 6) + 1;
+                        diceElement.classList.remove('rolling');
+                        updateDiceDisplay();
+                    }, 500);
+                }
+            }
+
+            rollsLeft--;
+            document.getElementById('rollsLeft').textContent = rollsLeft;
+
+            if (rollsLeft === 0) {
+                document.getElementById('rollButton').disabled = true;
+            }
+
+            // スコアを更新
+            setTimeout(() => {
+                updateScoreboard();
+            }, 600);
+        }
+
+        // サイコロをホールド/解除
+        function toggleHold(index) {
+            if (rollsLeft === 3) {
+                alert('まずサイコロを振ってください！');
+                return;
+            }
+            if (rollsLeft === 0) {
+                return;
+            }
+            held[index] = !held[index];
+            updateDiceDisplay();
+        }
+
+        // 役を判定してスコアを計算
+        function calculateScores() {
+            const counts = [0, 0, 0, 0, 0, 0];
+            let sum = 0;
+            
+            for (let die of dice) {
+                counts[die - 1]++;
+                sum += die;
+            }
+
+            const sortedCounts = [...counts].sort((a, b) => b - a);
+
+            return {
+                'ワンペア': sortedCounts[0] >= 2 ? sum : 0,
+                'ツーペア': (sortedCounts[0] >= 2 && sortedCounts[1] >= 2) ? sum : 0,
+                'スリー・オブ・ア・カインド': sortedCounts[0] >= 3 ? sum : 0,
+                'フォー・オブ・ア・カインド': sortedCounts[0] >= 4 ? sum : 0,
+                'フルハウス': (sortedCounts[0] >= 3 && sortedCounts[1] >= 2) ? 25 : 0,
+                'スモールストレート': isSmallStraight(dice) ? 30 : 0,
+                'ラージストレート': isLargeStraight(dice) ? 40 : 0,
+                'ヨット': sortedCounts[0] === 5 ? 50 : 0, // 常に50点固定
+                'チャンス': sum
+            };
+        }
+
+        // スモールストレート判定（1-5または2-6の4連続）
+        function isSmallStraight(dice) {
+            const unique = [...new Set(dice)].sort();
+            if (unique.length < 4) return false;
+            
+            // 1-4, 2-5, 3-6のいずれかがあるかチェック
+            const patterns = [
+                [1, 2, 3, 4],
+                [2, 3, 4, 5],
+                [3, 4, 5, 6]
+            ];
+            
+            for (let pattern of patterns) {
+                if (pattern.every(val => unique.includes(val))) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // ラージストレート判定（1-5または2-6の5連続）
+        function isLargeStraight(dice) {
+            const unique = [...new Set(dice)].sort();
+            if (unique.length !== 5) return false;
+            
+            // 1-5または2-6のいずれか
+            const pattern1 = [1, 2, 3, 4, 5];
+            const pattern2 = [2, 3, 4, 5, 6];
+            
+            return (pattern1.every(val => unique.includes(val))) || 
+                   (pattern2.every(val => unique.includes(val)));
+        }
+
+        // スコアボードを更新
+        function updateScoreboard() {
+            const calculatedScores = calculateScores();
+            const scoreboard = document.getElementById('scoreboard');
+            scoreboard.innerHTML = '';
+
+            for (let [name, currentScore] of Object.entries(scores)) {
+                const scoreItem = document.createElement('div');
+                scoreItem.className = 'score-item';
+                
+                if (currentScore !== null) {
+                    scoreItem.classList.add('recorded');
+                    scoreItem.innerHTML = `
+                        <span class="score-name">${name}</span>
+                        <span class="score-value">${currentScore}点</span>
+                    `;
+                } else {
+                    const potentialScore = calculatedScores[name];
+                    scoreItem.innerHTML = `
+                        <span class="score-name">${name}</span>
+                        <span class="score-value current-score">${potentialScore}点</span>
+                    `;
+                    scoreItem.onclick = () => recordScore(name, potentialScore);
+                }
+                
+                scoreboard.appendChild(scoreItem);
+            }
+
+            updateTotalScore();
+        }
+
+        // スコアを記録
+        function recordScore(name, score) {
+            if (scores[name] !== null) {
+                alert('この役は既に記録済みです。');
+                return;
+            }
+
+            if (rollsLeft === 3) {
+                alert('まずサイコロを振ってください！');
+                return;
+            }
+
+            scores[name] = score;
+            
+            // 高得点の役で紙吹雪を表示
+            if (score >= 30) {
+                createConfetti();
+            }
+            
+            rollsLeft = 3;
+            held = [false, false, false, false, false];
+            document.getElementById('rollsLeft').textContent = rollsLeft;
+            document.getElementById('rollButton').disabled = false;
+            updateDiceDisplay();
+            updateScoreboard();
+
+            // 全て記録済みかチェック
+            if (Object.values(scores).every(s => s !== null)) {
+                setTimeout(() => {
+                    const total = Object.values(scores).reduce((a, b) => a + b, 0);
+                    // ゲーム終了時に紙吹雪を大量に表示
+                    for (let i = 0; i < 50; i++) {
+                        setTimeout(() => createConfetti(), i * 50);
+                    }
+                    saveScore(total);
+                    alert(`ゲーム終了！最終スコア: ${total}点`);
+                }, 100);
+            }
+        }
+
+        // 合計スコアを更新
+        function updateTotalScore() {
+            const total = Object.values(scores).reduce((sum, score) => sum + (score || 0), 0);
+            document.getElementById('totalScore').textContent = total;
+        }
+
+        // ゲームをリセット
+        function resetGame() {
+            if (confirm('ゲームをリセットしますか？')) {
+                dice = [1, 1, 1, 1, 1];
+                held = [false, false, false, false, false];
+                rollsLeft = 3;
+                scores = {
+                    'ワンペア': null,
+                    'ツーペア': null,
+                    'スリー・オブ・ア・カインド': null,
+                    'フォー・オブ・ア・カインド': null,
+                    'フルハウス': null,
+                    'スモールストレート': null,
+                    'ラージストレート': null,
+                    'ヨット': null,
+                    'チャンス': null
+                };
+                document.getElementById('rollsLeft').textContent = rollsLeft;
+                document.getElementById('rollButton').disabled = false;
+                updateDiceDisplay();
+                updateScoreboard();
+            }
+        }
+
+        // 紙吹雪エフェクト
+        function createConfetti() {
+            const colors = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#f0932b', '#eb4d4b', '#6c5ce7'];
+            const confettiCount = 20;
+            
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = (Math.random() * 10 + 5) + 'px';
+                confetti.style.height = (Math.random() * 10 + 5) + 'px';
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        // スコアを保存
+        function saveScore(totalScore) {
+            let savedScores = JSON.parse(localStorage.getItem('yachtScores') || '[]');
+            const newScore = {
+                score: totalScore,
+                date: new Date().toLocaleString('ja-JP')
+            };
+            savedScores.push(newScore);
+            savedScores.sort((a, b) => b.score - a.score);
+            // 上位100件のみ保存
+            savedScores = savedScores.slice(0, 100);
+            localStorage.setItem('yachtScores', JSON.stringify(savedScores));
+        }
+
+        // ランキングを表示
+        function showRanking() {
+            const modal = document.getElementById('rankingModal');
+            const rankingList = document.getElementById('rankingList');
+            const savedScores = JSON.parse(localStorage.getItem('yachtScores') || '[]');
+            
+            if (savedScores.length === 0) {
+                rankingList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">まだスコアが記録されていません。</p>';
+            } else {
+                rankingList.innerHTML = '';
+                savedScores.forEach((item, index) => {
+                    const rankingItem = document.createElement('div');
+                    rankingItem.className = 'ranking-item';
+                    if (index === 0) rankingItem.classList.add('top1');
+                    else if (index === 1) rankingItem.classList.add('top2');
+                    else if (index === 2) rankingItem.classList.add('top3');
+                    
+                    rankingItem.innerHTML = `
+                        <div>
+                            <div class="ranking-rank">${index + 1}位</div>
+                            <div class="ranking-date">${item.date}</div>
+                        </div>
+                        <div class="ranking-score">${item.score}点</div>
+                    `;
+                    rankingList.appendChild(rankingItem);
+                });
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        // ランキングを閉じる
+        function closeRanking() {
+            document.getElementById('rankingModal').style.display = 'none';
+        }
+
+        // モーダル外をクリックで閉じる
+        window.onclick = function(event) {
+            const modal = document.getElementById('rankingModal');
+            if (event.target === modal) {
+                closeRanking();
+            }
+        }
+
+        // 初期化
+        updateDiceDisplay();
+        updateScoreboard();
+    </script>
+</body>
+</html>
