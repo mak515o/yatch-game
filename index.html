@@ -12,7 +12,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: "Hiragino Kaku Gothic ProN", "Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ ProN W3", "Hiragino Sans", Meiryo, "メイリオ", sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
@@ -72,14 +72,36 @@
         .start-subtitle {
             font-size: 1.2rem;
             color: #666;
-            margin-bottom: 50px;
+            margin-bottom: 30px;
+        }
+
+        /* スタート画面用遊び方ボタン */
+        .start-rule-button {
+            width: 100%;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            color: #667eea;
+            margin-bottom: 30px;
+        }
+
+        .start-rule-button:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .mode-buttons {
             display: flex;
             flex-direction: column;
             gap: 20px;
-            margin-top: 40px;
+            margin-top: 10px;
         }
 
         .mode-button {
@@ -699,7 +721,7 @@
         .modal {
             display: none;
             position: fixed;
-            z-index: 2000;
+            z-index: 10000;
             left: 0;
             top: 0;
             width: 100%;
@@ -839,7 +861,8 @@
     <div id="start-screen">
         <div class="start-container">
             <div class="start-title">🎲 ヨット 🎲</div>
-            <div class="start-subtitle">サイコロパズルゲーム</div>
+            <div class="start-subtitle">あなたの運と判断力が試される、サイコロゲーム</div>
+            <button class="start-rule-button" onclick="showHelpModal()">📖 遊び方</button>
             <div class="mode-buttons">
                 <button class="mode-button single-player" onclick="startGame('single')">
                     <span class="mode-button-icon">🏆</span>
@@ -926,7 +949,10 @@
         </div>
     </div>
 
-    <!-- ヘルプモーダル -->
+    </div>
+    <!-- ゲーム画面終了 -->
+
+    <!-- ヘルプモーダル（body直下に配置） -->
     <div id="helpModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -947,8 +973,6 @@
             </div>
         </div>
     </div>
-    </div>
-    <!-- ゲーム画面終了 -->
 
     <script>
         // ゲーム状態
