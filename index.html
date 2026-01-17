@@ -146,69 +146,6 @@
             font-weight: normal;
         }
 
-        /* 難易度選択メニュー */
-        .difficulty-menu {
-            display: none;
-            margin-top: 30px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            animation: slideDown 0.3s ease-out;
-        }
-
-        .difficulty-menu.active {
-            display: block;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .difficulty-title {
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .difficulty-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .difficulty-button {
-            width: 100%;
-            padding: 18px 30px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border: 2px solid #667eea;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: white;
-            color: #667eea;
-        }
-
-        .difficulty-button:hover {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        }
-
-        .difficulty-button:active {
-            transform: translateY(0);
-        }
 
         /* ゲーム画面 */
         #game-screen {
@@ -909,7 +846,7 @@
                     1人で遊ぶ
                     <div class="mode-button-description">（スコアアタック）</div>
                 </button>
-                <button class="mode-button cpu-player" onclick="showDifficultyMenu()">
+                <button class="mode-button cpu-player" onclick="startGame('cpu')">
                     <span class="mode-button-icon">🤖</span>
                     1人で遊ぶ
                     <div class="mode-button-description">（CPU対戦）</div>
@@ -919,14 +856,6 @@
                     2人で遊ぶ
                     <div class="mode-button-description">（対戦）</div>
                 </button>
-            </div>
-            <div class="difficulty-menu" id="difficultyMenu">
-                <div class="difficulty-title">難易度を選択してください</div>
-                <div class="difficulty-buttons">
-                    <button class="difficulty-button" onclick="startGame('cpu-easy')">初級</button>
-                    <button class="difficulty-button" onclick="startGame('cpu-normal')">中級</button>
-                    <button class="difficulty-button" onclick="startGame('cpu-hard')">上級</button>
-                </div>
             </div>
         </div>
     </div>
@@ -1199,8 +1128,8 @@
             const scoreboard = document.getElementById('scoreboard');
             scoreboard.innerHTML = '';
 
-            if (gameMode === 'two') {
-                // 2人対戦モード：各役にプレイヤー1と2の点数を表示
+            if (gameMode === 'two' || gameMode.startsWith('cpu-')) {
+                // 2人対戦モード・CPU対戦モード：各役にプレイヤー1と2の点数を表示
                 for (let [name, player1Score] of Object.entries(playerScores[1])) {
                     const scoreItem = document.createElement('div');
                     scoreItem.className = 'score-item two-player';
@@ -1380,17 +1309,30 @@
             
             // 全て記録済みかチェック
             let allPlayersFinished = false;
-            if (gameMode === 'two') {
-                // 2人対戦モード：両プレイヤーが全て記録済みかチェック
+            if (gameMode === 'two' || gameMode.startsWith('cpu-')) {
+                // 2人対戦モード・CPU対戦モード：両プレイヤーが全て記録済みかチェック
                 allPlayersFinished = Object.values(playerScores[1]).every(s => s !== null) &&
                                     Object.values(playerScores[2]).every(s => s !== null);
+                
+                // 2人対戦モード・CPU対戦モード：両プレイヤーが同じ数の役を記録したタイミングでラウンドを進める
+                const player1RecordedCount = Object.values(playerScores[1]).filter(s => s !== null).length;
+                const player2RecordedCount = Object.values(playerScores[2]).filter(s => s !== null).length;
+                
+                // 両プレイヤーが同じ数の役を記録した場合（例：両方とも1つ、両方とも2つ...）
+                // かつ、ゲーム終了でない場合、ラウンドを進める
+                if (player1RecordedCount === player2RecordedCount && !allPlayersFinished) {
+                    currentRound++;
+                    document.getElementById('currentRound').textContent = currentRound;
+                } else if (allPlayersFinished) {
+                    // ゲーム終了時はラウンドを9に固定
+                    currentRound = 9;
+                    document.getElementById('currentRound').textContent = currentRound;
+                }
             } else {
                 // 1人モード：現在のプレイヤーが全て記録済みかチェック
                 allPlayersFinished = Object.values(scores).every(s => s !== null);
-            }
-            
-            // 1人モードの場合のみラウンドを進める
-            if (gameMode === 'single') {
+                
+                // 1人モード：自分が記録を終えるたびにラウンドを1つ進める
                 if (!allPlayersFinished) {
                     currentRound++;
                 } else {
@@ -1410,21 +1352,29 @@
             // 全てのプレイヤーが終了した場合、ゲーム終了処理
             if (allPlayersFinished) {
                 setTimeout(() => {
-                    if (gameMode === 'two') {
+                    if (gameMode === 'two' || gameMode.startsWith('cpu-')) {
                         const total1 = Object.values(playerScores[1]).reduce((a, b) => a + b, 0);
                         const total2 = Object.values(playerScores[2]).reduce((a, b) => a + b, 0);
                         let message = '';
                         if (total1 > total2) {
-                            message = `プレイヤー1の勝利！\nプレイヤー1: ${total1}点\nプレイヤー2: ${total2}点`;
+                            const winner = gameMode.startsWith('cpu-') ? 'あなたの勝利！' : 'プレイヤー1の勝利！';
+                            const player1Label = gameMode.startsWith('cpu-') ? 'あなた' : 'プレイヤー1';
+                            const player2Label = gameMode.startsWith('cpu-') ? 'CPU' : 'プレイヤー2';
+                            message = `${winner}\n${player1Label}: ${total1}点\n${player2Label}: ${total2}点`;
                         } else if (total2 > total1) {
-                            message = `プレイヤー2の勝利！\nプレイヤー1: ${total1}点\nプレイヤー2: ${total2}点`;
+                            const winner = gameMode.startsWith('cpu-') ? 'CPUの勝利！' : 'プレイヤー2の勝利！';
+                            const player1Label = gameMode.startsWith('cpu-') ? 'あなた' : 'プレイヤー1';
+                            const player2Label = gameMode.startsWith('cpu-') ? 'CPU' : 'プレイヤー2';
+                            message = `${winner}\n${player1Label}: ${total1}点\n${player2Label}: ${total2}点`;
                         } else {
                             message = `引き分け！\nスコア: ${total1}点`;
                         }
                         for (let i = 0; i < 50; i++) {
                             setTimeout(() => createConfetti(), i * 50);
                         }
-                        saveScore(total1);
+                        if (gameMode === 'two' || gameMode.startsWith('cpu-')) {
+                            saveScore(total1);
+                        }
                         showGameEndMessage(total1, total2, message);
                     } else {
                         const total = Object.values(scores).reduce((a, b) => a + b, 0);
@@ -1438,8 +1388,8 @@
                 return;
             }
             
-            // 2人対戦モード：ターン交代
-            if (gameMode === 'two') {
+            // 2人対戦モード・CPU対戦モード：ターン交代
+            if (gameMode === 'two' || gameMode.startsWith('cpu-')) {
                 setTimeout(() => {
                     switchPlayer();
                 }, 500);
@@ -1459,13 +1409,188 @@
             updateTurnDisplay();
             updateDiceDisplay();
             updateScoreboard();
+            
+            // CPU対戦モードでプレイヤー2（CPU）のターンの場合、CPUのターンを開始
+            if (gameMode.startsWith('cpu-') && currentPlayer === 2) {
+                setTimeout(() => {
+                    playCPUTurn();
+                }, 500);
+            }
+        }
+
+        // CPUのターン処理
+        function playCPUTurn() {
+            // ボタンを無効化
+            document.getElementById('rollButton').disabled = true;
+            
+            // CPUがサイコロを3回振る
+            let cpuRollCount = 0;
+            const cpuRollInterval = setInterval(() => {
+                if (cpuRollCount < 3 && rollsLeft > 0) {
+                    // CPUがサイコロを振る
+                    for (let i = 0; i < 5; i++) {
+                        if (!held[i]) {
+                            dice[i] = Math.floor(Math.random() * 6) + 1;
+                        }
+                    }
+                    updateDiceDisplay();
+                    rollsLeft--;
+                    document.getElementById('rollsLeft').textContent = rollsLeft;
+                    cpuRollCount++;
+                    
+                    // サイコロを振った後、ホールドするサイコロを決定（最後の振り直し以外）
+                    if (rollsLeft > 0 && cpuRollCount < 3) {
+                        const shouldHold = calculateCPUHold();
+                        for (let i = 0; i < 5; i++) {
+                            held[i] = shouldHold[i];
+                        }
+                        updateDiceDisplay();
+                    }
+                } else {
+                    clearInterval(cpuRollInterval);
+                    // CPUがスコアを記録
+                    setTimeout(() => {
+                        const calculatedScores = calculateScores();
+                        const bestMove = calculateBestMove(calculatedScores);
+                        recordScore(bestMove.name, bestMove.score);
+                    }, 1000);
+                }
+            }, 1500);
+        }
+
+        // CPUがホールドするべきサイコロを計算（得点期待値に基づく）
+        function calculateCPUHold() {
+            // サイコロの目の出現回数をカウント
+            const counts = [0, 0, 0, 0, 0, 0];
+            for (let die of dice) {
+                counts[die - 1]++;
+            }
+            
+            const hold = [false, false, false, false, false];
+            const maxCount = Math.max(...counts);
+            const maxValue = counts.indexOf(maxCount) + 1;
+            
+            // 得点期待値に基づいてホールドを決定
+            // 1. 3つ以上揃っている目をホールド（スリーダイス、フォーダイス、フルハウス、ヨットを狙う）
+            if (maxCount >= 3) {
+                for (let i = 0; i < 5; i++) {
+                    if (dice[i] === maxValue) {
+                        hold[i] = true;
+                    }
+                }
+            } else if (maxCount >= 2) {
+                // 2つ揃っている目をホールド（ツーペア、スリーダイスを狙う）
+                for (let i = 0; i < 5; i++) {
+                    if (dice[i] === maxValue) {
+                        hold[i] = true;
+                    }
+                }
+                
+                // もう1つのペアがあるかチェック（ツーペアを狙う）
+                for (let value = 6; value >= 1; value--) {
+                    if (value !== maxValue && counts[value - 1] >= 2) {
+                        for (let i = 0; i < 5; i++) {
+                            if (dice[i] === value) {
+                                hold[i] = true;
+                            }
+                        }
+                        break;
+                    }
+                }
+            } else {
+                // ストレートを狙える場合は、連続した目を優先
+                const unique = [...new Set(dice)].sort();
+                let hasConsecutive = false;
+                
+                // 連続した4つ以上があるかチェック
+                for (let i = 0; i <= unique.length - 4; i++) {
+                    let consecutiveCount = 1;
+                    for (let j = i; j < unique.length - 1; j++) {
+                        if (unique[j + 1] - unique[j] === 1) {
+                            consecutiveCount++;
+                        } else {
+                            break;
+                        }
+                    }
+                    if (consecutiveCount >= 4) {
+                        hasConsecutive = true;
+                        // 連続した目をホールド
+                        for (let k = i; k < i + consecutiveCount; k++) {
+                            for (let idx = 0; idx < 5; idx++) {
+                                if (dice[idx] === unique[k]) {
+                                    hold[idx] = true;
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+                
+                // ストレートがない場合、高い目を優先的にホールド（チャンスのため）
+                if (!hasConsecutive) {
+                    const sortedDice = [...dice].sort((a, b) => b - a);
+                    // 高い目から順に2-3個をホールド
+                    const holdCount = Math.min(3, 5);
+                    for (let i = 0; i < holdCount; i++) {
+                        const highValue = sortedDice[i];
+                        for (let idx = 0; idx < 5; idx++) {
+                            if (dice[idx] === highValue && !hold[idx]) {
+                                hold[idx] = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return hold;
+        }
+
+        // CPUが選ぶべき最適な役を計算（得点期待値に基づく）
+        function calculateBestMove(calculatedScores) {
+            const availableMoves = [];
+            for (let [name, score] of Object.entries(calculatedScores)) {
+                if (scores[name] === null) {
+                    availableMoves.push({ name, score });
+                }
+            }
+            
+            if (availableMoves.length === 0) {
+                return { name: 'チャンス', score: calculatedScores['チャンス'] };
+            }
+            
+            // 得点期待値に基づいて最適な役を選択
+            // 1. 高得点の固定スコア役を優先（ヨット、ラージストレート、フルハウス）
+            // 2. 次に、現在のスコアが高い役を優先
+            // 3. 残りの役も考慮して、バランス良く選択
+            
+            const highValueCategories = ['ヨット', 'ラージストレート', 'フルハウス'];
+            for (let category of highValueCategories) {
+                const move = availableMoves.find(m => m.name === category && m.score > 0);
+                if (move) {
+                    return move;
+                }
+            }
+            
+            // スコアが高い役を優先
+            availableMoves.sort((a, b) => b.score - a.score);
+            
+            // スコアが30以上の役があれば優先
+            const highScoreMoves = availableMoves.filter(m => m.score >= 30);
+            if (highScoreMoves.length > 0) {
+                return highScoreMoves[0];
+            }
+            
+            // それ以外は最もスコアが高い役を選択
+            return availableMoves[0];
         }
 
         // 合計スコアを更新
         function updateTotalScore() {
             const totalScoreDisplay = document.getElementById('totalScoreDisplay');
-            if (gameMode === 'two') {
-                // 2人対戦モードでは合計スコア表示を非表示（スコアボード内に表示）
+            if (gameMode === 'two' || gameMode.startsWith('cpu-')) {
+                // 2人対戦モード・CPU対戦モードでは合計スコア表示を非表示（スコアボード内に表示）
                 totalScoreDisplay.style.display = 'none';
             } else {
                 // 1人モードでは従来通り表示
@@ -1504,7 +1629,11 @@
         // ゲームをリセット
         function resetGame() {
             if (confirm('ゲームをリセットしますか？')) {
-                initializeGame(gameMode);
+                // 全モードでスタート画面に戻る
+                // ゲーム画面を非表示
+                document.getElementById('game-screen').classList.remove('active');
+                // スタート画面を表示
+                document.getElementById('start-screen').style.display = 'flex';
                 
                 // ゲーム終了メッセージを削除
                 const gameEndMessage = document.getElementById('gameEndMessage');
@@ -1617,14 +1746,14 @@
             }
         }
 
-        // 難易度選択メニューを表示
-        function showDifficultyMenu() {
-            const difficultyMenu = document.getElementById('difficultyMenu');
-            difficultyMenu.classList.toggle('active');
-        }
 
         // ゲーム開始
         function startGame(mode) {
+            // CPU対戦モードの場合は、デフォルトで中級（normal）を設定
+            if (mode === 'cpu') {
+                mode = 'cpu-normal';
+            }
+            
             // スタート画面を非表示
             document.getElementById('start-screen').style.display = 'none';
             // ゲーム画面を表示
@@ -1635,12 +1764,6 @@
             
             // ゲーム初期化
             initializeGame(mode);
-            
-            // 難易度選択メニューを非表示に（CPU対戦の場合）
-            const difficultyMenu = document.getElementById('difficultyMenu');
-            if (difficultyMenu) {
-                difficultyMenu.classList.remove('active');
-            }
         }
 
         // ゲーム初期化
@@ -1652,8 +1775,8 @@
             held = [false, false, false, false, false];
             rollsLeft = 3;
             
-            // 2人対戦モードの場合、プレイヤー2のスコアをリセット
-            if (mode === 'two') {
+            // 2人対戦モード・CPU対戦モードの場合、プレイヤー2のスコアをリセット
+            if (mode === 'two' || mode.startsWith('cpu-')) {
                 playerScores[2] = {
                     'ワンペア': null,
                     'ツーペア': null,
@@ -1687,14 +1810,16 @@
             
             if (gameMode === 'single') {
                 turnDisplay.classList.add('hidden');
-            } else if (gameMode === 'two') {
+            } else if (gameMode === 'two' || gameMode.startsWith('cpu-')) {
                 turnDisplay.classList.remove('hidden');
                 if (currentPlayer === 1) {
                     turnDisplay.className = 'turn-display player1';
-                    turnDisplay.textContent = 'Player 1\'s Turn';
+                    const player1Label = gameMode.startsWith('cpu-') ? 'あなたのターン' : 'Player 1\'s Turn';
+                    turnDisplay.textContent = player1Label;
                 } else {
                     turnDisplay.className = 'turn-display player2';
-                    turnDisplay.textContent = 'Player 2\'s Turn';
+                    const player2Label = gameMode.startsWith('cpu-') ? 'CPUのターン' : 'Player 2\'s Turn';
+                    turnDisplay.textContent = player2Label;
                 }
             }
         }
