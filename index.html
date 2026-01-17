@@ -26,6 +26,35 @@
             border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             padding: 30px 20px;
+            position: relative;
+        }
+
+        /* ヘルプボタン */
+        .help-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .help-button:hover {
+            background: #5568d3;
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
 
         h1 {
@@ -251,6 +280,97 @@
         .score-name {
             font-weight: bold;
             color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: help;
+            position: relative;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .info-icon:hover {
+            background: #5568d3;
+            transform: scale(1.2);
+        }
+
+        .info-icon.active .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* ツールチップ */
+        .tooltip {
+            visibility: hidden;
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            text-align: left;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            max-width: 300px;
+            min-width: 200px;
+            white-space: normal;
+            word-wrap: break-word;
+            word-break: normal;
+            overflow-wrap: break-word;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #333;
+        }
+
+        .info-icon:hover .tooltip,
+        .info-icon:focus .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* スマホ対応 */
+        @media (max-width: 480px) {
+            .info-icon {
+                width: 20px;
+                height: 20px;
+                font-size: 0.8rem;
+            }
+
+            .tooltip {
+                max-width: min(90vw, 300px);
+                min-width: min(200px, 80vw);
+                font-size: 0.8rem;
+                padding: 10px 14px;
+                left: 50%;
+                right: auto;
+            }
         }
 
         .score-value {
@@ -423,7 +543,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎲 ヨット　🎲</h1>
+        <button class="help-button" onclick="showHelpModal()" title="ゲームのルールを見る">?</button>
+        <h1>🎲 ヨット🎲</h1>
         
         <div class="game-info">
             <div class="rolls-left">残り回数: <span id="rollsLeft">3</span>回</div>
@@ -480,6 +601,28 @@
                 <span class="close" onclick="closeRanking()">&times;</span>
             </div>
             <div id="rankingList"></div>
+        </div>
+    </div>
+
+    <!-- ヘルプモーダル -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📖 ゲームのルール 📖</h2>
+                <span class="close" onclick="closeHelpModal()">&times;</span>
+            </div>
+            <div style="line-height: 1.8; color: #333;">
+                <h3 style="color: #667eea; margin-top: 20px; margin-bottom: 10px;">ゲームの流れ</h3>
+                <ol style="margin-left: 20px; padding-left: 10px;">
+                    <li style="margin-bottom: 10px;"><strong>サイコロを振る</strong><br>「サイコロを振る」ボタンをクリックして、5つのサイコロを振ります。</li>
+                    <li style="margin-bottom: 10px;"><strong>サイコロをホールド</strong><br>残したいサイコロをクリックすると、金色になります。ホールドしたサイコロは次回振っても変わりません。</li>
+                    <li style="margin-bottom: 10px;"><strong>最大3回まで振り直し</strong><br>各ターンで最大3回までサイコロを振り直すことができます。</li>
+                    <li style="margin-bottom: 10px;"><strong>スコアを記録</strong><br>スコアボードから好きな役をクリックして記録します。一度記録した役は使えません。</li>
+                    <li style="margin-bottom: 10px;"><strong>9つの役を全て記録</strong><br>全9種類の役を記録するとゲーム終了です。合計スコアで勝負します！</li>
+                </ol>
+                <h3 style="color: #667eea; margin-top: 30px; margin-bottom: 10px;">役の見方</h3>
+                <p>スコアボードの各役の横にある「<span class="info-icon" style="width: 14px; height: 14px; font-size: 0.7rem;">i</span>」アイコンにマウスを乗せると、詳しい説明が表示されます。</p>
+            </div>
         </div>
     </div>
 
@@ -620,6 +763,19 @@
                    (pattern2.every(val => unique.includes(val)));
         }
 
+        // 役の説明データ
+        const scoreDescriptions = {
+            'ワンペア': '同じ目が2つ揃った組み合わせ。全サイコロの合計がスコアになります。',
+            'ツーペア': '異なる2つのペアが揃った組み合わせ（例：2,2,3,3,5）。全サイコロの合計がスコアになります。',
+            'スリー・オブ・ア・カインド': '同じ目が3つ揃った組み合わせ。全サイコロの合計がスコアになります。',
+            'フォー・オブ・ア・カインド': '同じ目が4つ揃った組み合わせ。全サイコロの合計がスコアになります。',
+            'フルハウス': '同じ目が3つと、別の同じ目が2つの組み合わせ（例：2,2,2,5,5）。固定で25点です。',
+            'スモールストレート': '連続した4つの目が揃った組み合わせ（例：1,2,3,4 または 2,3,4,5 など）。固定で30点です。',
+            'ラージストレート': '連続した5つの目が揃った組み合わせ（1,2,3,4,5 または 2,3,4,5,6）。固定で40点です。',
+            'ヨット': '全て同じ目が5つ揃った組み合わせ。固定で50点です。',
+            'チャンス': 'どんな組み合わせでも記録できます。全サイコロの合計がスコアになります。'
+        };
+
         // スコアボードを更新
         function updateScoreboard() {
             const calculatedScores = calculateScores();
@@ -630,18 +786,48 @@
                 const scoreItem = document.createElement('div');
                 scoreItem.className = 'score-item';
                 
+                const infoIcon = document.createElement('span');
+                infoIcon.className = 'info-icon';
+                infoIcon.setAttribute('tabindex', '0');
+                infoIcon.textContent = 'i';
+                infoIcon.setAttribute('aria-label', scoreDescriptions[name]);
+                
+                const tooltip = document.createElement('span');
+                tooltip.className = 'tooltip';
+                tooltip.textContent = scoreDescriptions[name];
+                infoIcon.appendChild(tooltip);
+                
+                // クリックでもツールチップを表示（スマホ対応）
+                infoIcon.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    infoIcon.classList.toggle('active');
+                    // 他のアイコンのactiveクラスを削除
+                    document.querySelectorAll('.info-icon').forEach(icon => {
+                        if (icon !== infoIcon) {
+                            icon.classList.remove('active');
+                        }
+                    });
+                });
+                
+                const scoreName = document.createElement('span');
+                scoreName.className = 'score-name';
+                scoreName.textContent = name;
+                scoreName.appendChild(infoIcon);
+                
                 if (currentScore !== null) {
                     scoreItem.classList.add('recorded');
-                    scoreItem.innerHTML = `
-                        <span class="score-name">${name}</span>
-                        <span class="score-value">${currentScore}点</span>
-                    `;
+                    const scoreValue = document.createElement('span');
+                    scoreValue.className = 'score-value';
+                    scoreValue.textContent = `${currentScore}点`;
+                    scoreItem.appendChild(scoreName);
+                    scoreItem.appendChild(scoreValue);
                 } else {
                     const potentialScore = calculatedScores[name];
-                    scoreItem.innerHTML = `
-                        <span class="score-name">${name}</span>
-                        <span class="score-value current-score">${potentialScore}点</span>
-                    `;
+                    const scoreValue = document.createElement('span');
+                    scoreValue.className = 'score-value current-score';
+                    scoreValue.textContent = `${potentialScore}点`;
+                    scoreItem.appendChild(scoreName);
+                    scoreItem.appendChild(scoreValue);
                     scoreItem.onclick = () => recordScore(name, potentialScore);
                 }
                 
@@ -795,11 +981,32 @@
             document.getElementById('rankingModal').style.display = 'none';
         }
 
+        // ヘルプモーダルを表示
+        function showHelpModal() {
+            document.getElementById('helpModal').style.display = 'block';
+        }
+
+        // ヘルプモーダルを閉じる
+        function closeHelpModal() {
+            document.getElementById('helpModal').style.display = 'none';
+        }
+
         // モーダル外をクリックで閉じる
         window.onclick = function(event) {
-            const modal = document.getElementById('rankingModal');
-            if (event.target === modal) {
+            const rankingModal = document.getElementById('rankingModal');
+            const helpModal = document.getElementById('helpModal');
+            if (event.target === rankingModal) {
                 closeRanking();
+            }
+            if (event.target === helpModal) {
+                closeHelpModal();
+            }
+            
+            // ツールチップを閉じる（info-icon以外をクリックした場合）
+            if (!event.target.closest('.info-icon')) {
+                document.querySelectorAll('.info-icon').forEach(icon => {
+                    icon.classList.remove('active');
+                });
             }
         }
 
