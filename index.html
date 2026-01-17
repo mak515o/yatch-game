@@ -69,12 +69,31 @@
             margin-bottom: 20px;
             font-size: 1.1rem;
             color: #666;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            align-items: center;
         }
 
         .rolls-left {
             font-weight: bold;
             color: #667eea;
             font-size: 1.2rem;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-radius: 10px;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .round-display {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.2rem;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-radius: 10px;
+            border: 2px solid rgba(102, 126, 234, 0.3);
         }
 
         .dice-container {
@@ -399,6 +418,50 @@
             font-weight: bold;
         }
 
+        /* ゲーム終了メッセージ */
+        .game-end-message {
+            margin-top: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border-radius: 15px;
+            color: #333;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(255, 215, 0, 0.4);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .game-end-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .game-end-score {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ff0000;
+            margin: 15px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .game-end-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
         /* 紙吹雪のスタイル */
         .confetti {
             position: fixed;
@@ -538,6 +601,24 @@
                 padding: 12px 24px;
                 font-size: 1rem;
             }
+
+            .game-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .round-display,
+            .rolls-left {
+                font-size: 1rem;
+            }
+
+            .game-end-title {
+                font-size: 1.5rem;
+            }
+
+            .game-end-score {
+                font-size: 2.5rem;
+            }
         }
     </style>
 </head>
@@ -547,7 +628,8 @@
         <h1>🎲 ヨット🎲</h1>
         
         <div class="game-info">
-            <div class="rolls-left">残り回数: <span id="rollsLeft">3</span>回</div>
+            <div class="round-display">ラウンド <span id="currentRound">1</span> / 9</div>
+            <div class="rolls-left">🎲残り回数: <span id="rollsLeft">3</span></div>
         </div>
 
         <div class="dice-container">
@@ -621,7 +703,7 @@
                     <li style="margin-bottom: 10px;"><strong>9つの役を全て記録</strong><br>全9種類の役を記録するとゲーム終了です。合計スコアで勝負します！</li>
                 </ol>
                 <h3 style="color: #667eea; margin-top: 30px; margin-bottom: 10px;">役の見方</h3>
-                <p>スコアボードの各役の横にある「<span class="info-icon" style="width: 14px; height: 14px; font-size: 0.7rem;">i</span>」アイコンにマウスを乗せると、詳しい説明が表示されます。</p>
+                <p>スコアボードの各役の横にある「<span class="info-icon" style="width: 14px; height: 14px; font-size: 0.7rem;">i</span>」アイコンを押すと、詳しい説明が表示されます。</p>
             </div>
         </div>
     </div>
@@ -631,11 +713,13 @@
         let dice = [1, 1, 1, 1, 1];
         let held = [false, false, false, false, false];
         let rollsLeft = 3;
+        let currentRound = 1;
+        const totalRounds = 9;
         let scores = {
             'ワンペア': null,
             'ツーペア': null,
-            'スリー・オブ・ア・カインド': null,
-            'フォー・オブ・ア・カインド': null,
+            'スリーダイス': null,
+            'フォーダイス': null,
             'フルハウス': null,
             'スモールストレート': null,
             'ラージストレート': null,
@@ -720,8 +804,8 @@
             return {
                 'ワンペア': sortedCounts[0] >= 2 ? sum : 0,
                 'ツーペア': (sortedCounts[0] >= 2 && sortedCounts[1] >= 2) ? sum : 0,
-                'スリー・オブ・ア・カインド': sortedCounts[0] >= 3 ? sum : 0,
-                'フォー・オブ・ア・カインド': sortedCounts[0] >= 4 ? sum : 0,
+                'スリーダイス': sortedCounts[0] >= 3 ? sum : 0,
+                'フォーダイス': sortedCounts[0] >= 4 ? sum : 0,
                 'フルハウス': (sortedCounts[0] >= 3 && sortedCounts[1] >= 2) ? 25 : 0,
                 'スモールストレート': isSmallStraight(dice) ? 30 : 0,
                 'ラージストレート': isLargeStraight(dice) ? 40 : 0,
@@ -767,8 +851,8 @@
         const scoreDescriptions = {
             'ワンペア': '同じ目が2つ揃った組み合わせ。全サイコロの合計がスコアになります。',
             'ツーペア': '異なる2つのペアが揃った組み合わせ（例：2,2,3,3,5）。全サイコロの合計がスコアになります。',
-            'スリー・オブ・ア・カインド': '同じ目が3つ揃った組み合わせ。全サイコロの合計がスコアになります。',
-            'フォー・オブ・ア・カインド': '同じ目が4つ揃った組み合わせ。全サイコロの合計がスコアになります。',
+            'スリーダイス': '同じ目が3つ揃った組み合わせ。全サイコロの合計がスコアになります。',
+            'フォーダイス': '同じ目が4つ揃った組み合わせ。全サイコロの合計がスコアになります。',
             'フルハウス': '同じ目が3つと、別の同じ目が2つの組み合わせ（例：2,2,2,5,5）。固定で25点です。',
             'スモールストレート': '連続した4つの目が揃った組み合わせ（例：1,2,3,4 または 2,3,4,5 など）。固定で30点です。',
             'ラージストレート': '連続した5つの目が揃った組み合わせ（1,2,3,4,5 または 2,3,4,5,6）。固定で40点です。',
@@ -856,6 +940,10 @@
                 createConfetti();
             }
             
+            // ラウンドを進める
+            currentRound++;
+            document.getElementById('currentRound').textContent = currentRound;
+            
             rollsLeft = 3;
             held = [false, false, false, false, false];
             document.getElementById('rollsLeft').textContent = rollsLeft;
@@ -872,7 +960,7 @@
                         setTimeout(() => createConfetti(), i * 50);
                     }
                     saveScore(total);
-                    alert(`ゲーム終了！最終スコア: ${total}点`);
+                    showGameEndMessage(total);
                 }, 100);
             }
         }
@@ -883,17 +971,32 @@
             document.getElementById('totalScore').textContent = total;
         }
 
+        // ゲーム終了メッセージを表示
+        function showGameEndMessage(totalScore) {
+            const scoreboard = document.getElementById('scoreboard');
+            const gameEndMessage = document.createElement('div');
+            gameEndMessage.className = 'game-end-message';
+            gameEndMessage.id = 'gameEndMessage';
+            gameEndMessage.innerHTML = `
+                <div class="game-end-title">🎉 ゲーム終了！ 🎉</div>
+                <div class="game-end-score">${totalScore}点</div>
+                <div class="game-end-subtitle">お疲れ様でした！</div>
+            `;
+            scoreboard.parentNode.insertBefore(gameEndMessage, scoreboard.nextSibling);
+        }
+
         // ゲームをリセット
         function resetGame() {
             if (confirm('ゲームをリセットしますか？')) {
                 dice = [1, 1, 1, 1, 1];
                 held = [false, false, false, false, false];
                 rollsLeft = 3;
+                currentRound = 1;
                 scores = {
                     'ワンペア': null,
                     'ツーペア': null,
-                    'スリー・オブ・ア・カインド': null,
-                    'フォー・オブ・ア・カインド': null,
+                    'スリーダイス': null,
+                    'フォーダイス': null,
                     'フルハウス': null,
                     'スモールストレート': null,
                     'ラージストレート': null,
@@ -901,7 +1004,15 @@
                     'チャンス': null
                 };
                 document.getElementById('rollsLeft').textContent = rollsLeft;
+                document.getElementById('currentRound').textContent = currentRound;
                 document.getElementById('rollButton').disabled = false;
+                
+                // ゲーム終了メッセージを削除
+                const gameEndMessage = document.getElementById('gameEndMessage');
+                if (gameEndMessage) {
+                    gameEndMessage.remove();
+                }
+                
                 updateDiceDisplay();
                 updateScoreboard();
             }
