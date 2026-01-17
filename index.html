@@ -19,6 +19,206 @@
             color: #333;
         }
 
+        /* スタート画面 */
+        #start-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .start-container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .start-title {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        @media (max-width: 480px) {
+            .start-title {
+                font-size: 2rem;
+            }
+
+            .start-container {
+                padding: 40px 20px;
+            }
+
+            .mode-button {
+                padding: 20px 30px;
+                font-size: 1.3rem;
+            }
+
+            .start-subtitle {
+                font-size: 1rem;
+            }
+        }
+
+        .start-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 50px;
+        }
+
+        .mode-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .mode-button {
+            width: 100%;
+            padding: 25px 40px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .mode-button:hover::before {
+            left: 100%;
+        }
+
+        .mode-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .mode-button:active {
+            transform: translateY(-2px);
+        }
+
+        .mode-button.single-player {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .mode-button.cpu-player {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .mode-button.two-player {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .mode-button-icon {
+            font-size: 1.8rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .mode-button-description {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 8px;
+            font-weight: normal;
+        }
+
+        /* 難易度選択メニュー */
+        .difficulty-menu {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .difficulty-menu.active {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .difficulty-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .difficulty-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .difficulty-button {
+            width: 100%;
+            padding: 18px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            color: #667eea;
+        }
+
+        .difficulty-button:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .difficulty-button:active {
+            transform: translateY(0);
+        }
+
+        /* ゲーム画面 */
+        #game-screen {
+            display: none;
+        }
+
+        #game-screen.active {
+            display: block;
+        }
+
         .container {
             max-width: 600px;
             margin: 0 auto;
@@ -74,6 +274,81 @@
             gap: 30px;
             flex-wrap: wrap;
             align-items: center;
+        }
+
+        /* ターン表示 */
+        .turn-display {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .turn-display.player1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .turn-display.player2 {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .turn-display.hidden {
+            display: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        /* 2人対戦用のスコアボード */
+        .score-item.two-player {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .score-player {
+            text-align: center;
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .score-player.player1-score {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .score-player.player2-score {
+            background: rgba(17, 153, 142, 0.1);
+            color: #11998e;
+        }
+
+        .score-player.clickable {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .score-player.clickable:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .score-player.current-turn {
+            border: 2px solid;
+            font-size: 1.1rem;
         }
 
         .rolls-left {
@@ -623,10 +898,46 @@
     </style>
 </head>
 <body>
+    <!-- スタート画面 -->
+    <div id="start-screen">
+        <div class="start-container">
+            <div class="start-title">🎲 ヨット 🎲</div>
+            <div class="start-subtitle">サイコロパズルゲーム</div>
+            <div class="mode-buttons">
+                <button class="mode-button single-player" onclick="startGame('single')">
+                    <span class="mode-button-icon">🏆</span>
+                    1人で遊ぶ
+                    <div class="mode-button-description">（スコアアタック）</div>
+                </button>
+                <button class="mode-button cpu-player" onclick="showDifficultyMenu()">
+                    <span class="mode-button-icon">🤖</span>
+                    1人で遊ぶ
+                    <div class="mode-button-description">（CPU対戦）</div>
+                </button>
+                <button class="mode-button two-player" onclick="startGame('two')">
+                    <span class="mode-button-icon">👥</span>
+                    2人で遊ぶ
+                    <div class="mode-button-description">（対戦）</div>
+                </button>
+            </div>
+            <div class="difficulty-menu" id="difficultyMenu">
+                <div class="difficulty-title">難易度を選択してください</div>
+                <div class="difficulty-buttons">
+                    <button class="difficulty-button" onclick="startGame('cpu-easy')">初級</button>
+                    <button class="difficulty-button" onclick="startGame('cpu-normal')">中級</button>
+                    <button class="difficulty-button" onclick="startGame('cpu-hard')">上級</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ゲーム画面 -->
+    <div id="game-screen">
     <div class="container">
         <button class="help-button" onclick="showHelpModal()" title="ゲームのルールを見る">?</button>
         <h1>🎲 ヨット🎲</h1>
         
+        <div class="turn-display hidden" id="turnDisplay"></div>
         <div class="game-info">
             <div class="round-display">ラウンド <span id="currentRound">1</span> / 9</div>
             <div class="rolls-left">🎲残り回数: <span id="rollsLeft">3</span></div>
@@ -669,7 +980,7 @@
         <div class="scoreboard">
             <h2>スコアボード</h2>
             <div id="scoreboard"></div>
-            <div class="total-score">
+            <div class="total-score" id="totalScoreDisplay">
                 合計スコア: <span id="totalScore">0</span>点
             </div>
         </div>
@@ -707,25 +1018,47 @@
             </div>
         </div>
     </div>
+    </div>
+    <!-- ゲーム画面終了 -->
 
     <script>
         // ゲーム状態
+        let gameMode = 'single'; // 'single' or 'two'
+        let currentPlayer = 1; // 1 or 2
         let dice = [1, 1, 1, 1, 1];
         let held = [false, false, false, false, false];
         let rollsLeft = 3;
         let currentRound = 1;
         const totalRounds = 9;
-        let scores = {
-            'ワンペア': null,
-            'ツーペア': null,
-            'スリーダイス': null,
-            'フォーダイス': null,
-            'フルハウス': null,
-            'スモールストレート': null,
-            'ラージストレート': null,
-            'ヨット': null,
-            'チャンス': null
+        
+        // プレイヤースコア管理（2人対戦対応）
+        let playerScores = {
+            1: {
+                'ワンペア': null,
+                'ツーペア': null,
+                'スリーダイス': null,
+                'フォーダイス': null,
+                'フルハウス': null,
+                'スモールストレート': null,
+                'ラージストレート': null,
+                'ヨット': null,
+                'チャンス': null
+            },
+            2: {
+                'ワンペア': null,
+                'ツーペア': null,
+                'スリーダイス': null,
+                'フォーダイス': null,
+                'フルハウス': null,
+                'スモールストレート': null,
+                'ラージストレート': null,
+                'ヨット': null,
+                'チャンス': null
+            }
         };
+        
+        // 後方互換性のため
+        let scores = playerScores[1];
 
         // サイコロの目を更新する関数
         function updateDiceDisplay() {
@@ -866,56 +1199,161 @@
             const scoreboard = document.getElementById('scoreboard');
             scoreboard.innerHTML = '';
 
-            for (let [name, currentScore] of Object.entries(scores)) {
-                const scoreItem = document.createElement('div');
-                scoreItem.className = 'score-item';
-                
-                const infoIcon = document.createElement('span');
-                infoIcon.className = 'info-icon';
-                infoIcon.setAttribute('tabindex', '0');
-                infoIcon.textContent = 'i';
-                infoIcon.setAttribute('aria-label', scoreDescriptions[name]);
-                
-                const tooltip = document.createElement('span');
-                tooltip.className = 'tooltip';
-                tooltip.textContent = scoreDescriptions[name];
-                infoIcon.appendChild(tooltip);
-                
-                // クリックでもツールチップを表示（スマホ対応）
-                infoIcon.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    infoIcon.classList.toggle('active');
-                    // 他のアイコンのactiveクラスを削除
-                    document.querySelectorAll('.info-icon').forEach(icon => {
-                        if (icon !== infoIcon) {
-                            icon.classList.remove('active');
-                        }
+            if (gameMode === 'two') {
+                // 2人対戦モード：各役にプレイヤー1と2の点数を表示
+                for (let [name, player1Score] of Object.entries(playerScores[1])) {
+                    const scoreItem = document.createElement('div');
+                    scoreItem.className = 'score-item two-player';
+                    
+                    const infoIcon = document.createElement('span');
+                    infoIcon.className = 'info-icon';
+                    infoIcon.setAttribute('tabindex', '0');
+                    infoIcon.textContent = 'i';
+                    infoIcon.setAttribute('aria-label', scoreDescriptions[name]);
+                    
+                    const tooltip = document.createElement('span');
+                    tooltip.className = 'tooltip';
+                    tooltip.textContent = scoreDescriptions[name];
+                    infoIcon.appendChild(tooltip);
+                    
+                    infoIcon.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        infoIcon.classList.toggle('active');
+                        document.querySelectorAll('.info-icon').forEach(icon => {
+                            if (icon !== infoIcon) {
+                                icon.classList.remove('active');
+                            }
+                        });
                     });
-                });
-                
-                const scoreName = document.createElement('span');
-                scoreName.className = 'score-name';
-                scoreName.textContent = name;
-                scoreName.appendChild(infoIcon);
-                
-                if (currentScore !== null) {
-                    scoreItem.classList.add('recorded');
-                    const scoreValue = document.createElement('span');
-                    scoreValue.className = 'score-value';
-                    scoreValue.textContent = `${currentScore}点`;
+                    
+                    const scoreName = document.createElement('span');
+                    scoreName.className = 'score-name';
+                    scoreName.textContent = name;
+                    scoreName.appendChild(infoIcon);
+                    
+                    // プレイヤー1のスコア
+                    const player1ScoreElement = document.createElement('div');
+                    player1ScoreElement.className = 'score-player player1-score';
+                    if (player1Score !== null) {
+                        player1ScoreElement.textContent = player1Score + '点';
+                    } else {
+                        // プレイヤー1のターン中のみ計算して表示
+                        if (currentPlayer === 1) {
+                            const potentialScore = calculatedScores[name];
+                            player1ScoreElement.textContent = potentialScore + '点';
+                            player1ScoreElement.classList.add('clickable');
+                            player1ScoreElement.classList.add('current-turn');
+                            player1ScoreElement.onclick = () => recordScore(name, potentialScore);
+                        } else {
+                            // プレイヤー2のターン中は「-」を表示
+                            player1ScoreElement.textContent = '-';
+                        }
+                    }
+                    
+                    // プレイヤー2のスコア
+                    const player2Score = playerScores[2][name];
+                    const player2ScoreElement = document.createElement('div');
+                    player2ScoreElement.className = 'score-player player2-score';
+                    if (player2Score !== null) {
+                        player2ScoreElement.textContent = player2Score + '点';
+                    } else {
+                        // プレイヤー2のターン中のみ計算して表示
+                        if (currentPlayer === 2) {
+                            const potentialScore = calculatedScores[name];
+                            player2ScoreElement.textContent = potentialScore + '点';
+                            player2ScoreElement.classList.add('clickable');
+                            player2ScoreElement.classList.add('current-turn');
+                            player2ScoreElement.onclick = () => recordScore(name, potentialScore);
+                        } else {
+                            player2ScoreElement.textContent = '-';
+                        }
+                    }
+                    
                     scoreItem.appendChild(scoreName);
-                    scoreItem.appendChild(scoreValue);
-                } else {
-                    const potentialScore = calculatedScores[name];
-                    const scoreValue = document.createElement('span');
-                    scoreValue.className = 'score-value current-score';
-                    scoreValue.textContent = `${potentialScore}点`;
-                    scoreItem.appendChild(scoreName);
-                    scoreItem.appendChild(scoreValue);
-                    scoreItem.onclick = () => recordScore(name, potentialScore);
+                    scoreItem.appendChild(player1ScoreElement);
+                    scoreItem.appendChild(player2ScoreElement);
+                    
+                    scoreboard.appendChild(scoreItem);
                 }
                 
-                scoreboard.appendChild(scoreItem);
+                // チャンスの下に合計スコアを追加
+                const totalScoreItem = document.createElement('div');
+                totalScoreItem.className = 'score-item two-player';
+                
+                const totalScoreName = document.createElement('span');
+                totalScoreName.className = 'score-name';
+                totalScoreName.textContent = '合計スコア';
+                totalScoreName.style.fontWeight = 'bold';
+                
+                const total1 = Object.values(playerScores[1]).reduce((sum, score) => sum + (score || 0), 0);
+                const total2 = Object.values(playerScores[2]).reduce((sum, score) => sum + (score || 0), 0);
+                
+                const total1Element = document.createElement('div');
+                total1Element.className = 'score-player player1-score';
+                total1Element.textContent = total1 + '点';
+                total1Element.style.fontWeight = 'bold';
+                
+                const total2Element = document.createElement('div');
+                total2Element.className = 'score-player player2-score';
+                total2Element.textContent = total2 + '点';
+                total2Element.style.fontWeight = 'bold';
+                
+                totalScoreItem.appendChild(totalScoreName);
+                totalScoreItem.appendChild(total1Element);
+                totalScoreItem.appendChild(total2Element);
+                
+                scoreboard.appendChild(totalScoreItem);
+            } else {
+                // 1人モード：従来通り
+                for (let [name, currentScore] of Object.entries(scores)) {
+                    const scoreItem = document.createElement('div');
+                    scoreItem.className = 'score-item';
+                    
+                    const infoIcon = document.createElement('span');
+                    infoIcon.className = 'info-icon';
+                    infoIcon.setAttribute('tabindex', '0');
+                    infoIcon.textContent = 'i';
+                    infoIcon.setAttribute('aria-label', scoreDescriptions[name]);
+                    
+                    const tooltip = document.createElement('span');
+                    tooltip.className = 'tooltip';
+                    tooltip.textContent = scoreDescriptions[name];
+                    infoIcon.appendChild(tooltip);
+                    
+                    infoIcon.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        infoIcon.classList.toggle('active');
+                        document.querySelectorAll('.info-icon').forEach(icon => {
+                            if (icon !== infoIcon) {
+                                icon.classList.remove('active');
+                            }
+                        });
+                    });
+                    
+                    const scoreName = document.createElement('span');
+                    scoreName.className = 'score-name';
+                    scoreName.textContent = name;
+                    scoreName.appendChild(infoIcon);
+                    
+                    if (currentScore !== null) {
+                        scoreItem.classList.add('recorded');
+                        const scoreValue = document.createElement('span');
+                        scoreValue.className = 'score-value';
+                        scoreValue.textContent = `${currentScore}点`;
+                        scoreItem.appendChild(scoreName);
+                        scoreItem.appendChild(scoreValue);
+                    } else {
+                        const potentialScore = calculatedScores[name];
+                        const scoreValue = document.createElement('span');
+                        scoreValue.className = 'score-value current-score';
+                        scoreValue.textContent = `${potentialScore}点`;
+                        scoreItem.appendChild(scoreName);
+                        scoreItem.appendChild(scoreValue);
+                        scoreItem.onclick = () => recordScore(name, potentialScore);
+                    }
+                    
+                    scoreboard.appendChild(scoreItem);
+                }
             }
 
             updateTotalScore();
@@ -941,17 +1379,27 @@
             }
             
             // 全て記録済みかチェック
-            const isGameEnd = Object.values(scores).every(s => s !== null);
-            
-            // ゲーム終了でない場合のみラウンドを進める（最終ラウンドは9で止める）
-            if (!isGameEnd) {
-                currentRound++;
+            let allPlayersFinished = false;
+            if (gameMode === 'two') {
+                // 2人対戦モード：両プレイヤーが全て記録済みかチェック
+                allPlayersFinished = Object.values(playerScores[1]).every(s => s !== null) &&
+                                    Object.values(playerScores[2]).every(s => s !== null);
             } else {
-                // ゲーム終了時はラウンドを9に固定
-                currentRound = 9;
+                // 1人モード：現在のプレイヤーが全て記録済みかチェック
+                allPlayersFinished = Object.values(scores).every(s => s !== null);
             }
-            document.getElementById('currentRound').textContent = currentRound;
             
+            // 1人モードの場合のみラウンドを進める
+            if (gameMode === 'single') {
+                if (!allPlayersFinished) {
+                    currentRound++;
+                } else {
+                    currentRound = 9;
+                }
+                document.getElementById('currentRound').textContent = currentRound;
+            }
+            
+            // リセット
             rollsLeft = 3;
             held = [false, false, false, false, false];
             document.getElementById('rollsLeft').textContent = rollsLeft;
@@ -959,70 +1407,110 @@
             updateDiceDisplay();
             updateScoreboard();
 
-            // 全て記録済みの場合、ゲーム終了処理
-            if (isGameEnd) {
+            // 全てのプレイヤーが終了した場合、ゲーム終了処理
+            if (allPlayersFinished) {
                 setTimeout(() => {
-                    const total = Object.values(scores).reduce((a, b) => a + b, 0);
-                    // ゲーム終了時に紙吹雪を大量に表示
-                    for (let i = 0; i < 50; i++) {
-                        setTimeout(() => createConfetti(), i * 50);
+                    if (gameMode === 'two') {
+                        const total1 = Object.values(playerScores[1]).reduce((a, b) => a + b, 0);
+                        const total2 = Object.values(playerScores[2]).reduce((a, b) => a + b, 0);
+                        let message = '';
+                        if (total1 > total2) {
+                            message = `プレイヤー1の勝利！\nプレイヤー1: ${total1}点\nプレイヤー2: ${total2}点`;
+                        } else if (total2 > total1) {
+                            message = `プレイヤー2の勝利！\nプレイヤー1: ${total1}点\nプレイヤー2: ${total2}点`;
+                        } else {
+                            message = `引き分け！\nスコア: ${total1}点`;
+                        }
+                        for (let i = 0; i < 50; i++) {
+                            setTimeout(() => createConfetti(), i * 50);
+                        }
+                        saveScore(total1);
+                        showGameEndMessage(total1, total2, message);
+                    } else {
+                        const total = Object.values(scores).reduce((a, b) => a + b, 0);
+                        for (let i = 0; i < 50; i++) {
+                            setTimeout(() => createConfetti(), i * 50);
+                        }
+                        saveScore(total);
+                        showGameEndMessage(total);
                     }
-                    saveScore(total);
-                    showGameEndMessage(total);
                 }, 100);
+                return;
             }
+            
+            // 2人対戦モード：ターン交代
+            if (gameMode === 'two') {
+                setTimeout(() => {
+                    switchPlayer();
+                }, 500);
+            }
+        }
+
+        // プレイヤー交代
+        function switchPlayer() {
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+            scores = playerScores[currentPlayer];
+            
+            // リセット
+            dice = [1, 1, 1, 1, 1];
+            held = [false, false, false, false, false];
+            rollsLeft = 3;
+            
+            updateTurnDisplay();
+            updateDiceDisplay();
+            updateScoreboard();
         }
 
         // 合計スコアを更新
         function updateTotalScore() {
-            const total = Object.values(scores).reduce((sum, score) => sum + (score || 0), 0);
-            document.getElementById('totalScore').textContent = total;
+            const totalScoreDisplay = document.getElementById('totalScoreDisplay');
+            if (gameMode === 'two') {
+                // 2人対戦モードでは合計スコア表示を非表示（スコアボード内に表示）
+                totalScoreDisplay.style.display = 'none';
+            } else {
+                // 1人モードでは従来通り表示
+                totalScoreDisplay.style.display = 'block';
+                const total = Object.values(scores).reduce((sum, score) => sum + (score || 0), 0);
+                document.getElementById('totalScore').textContent = total;
+            }
         }
 
         // ゲーム終了メッセージを表示
-        function showGameEndMessage(totalScore) {
+        function showGameEndMessage(totalScore, totalScore2 = null, message = null) {
             const scoreboard = document.getElementById('scoreboard');
             const gameEndMessage = document.createElement('div');
             gameEndMessage.className = 'game-end-message';
             gameEndMessage.id = 'gameEndMessage';
-            gameEndMessage.innerHTML = `
-                <div class="game-end-title">🎉 ゲーム終了！ 🎉</div>
-                <div class="game-end-score">${totalScore}点</div>
-                <div class="game-end-subtitle">お疲れ様でした！</div>
-            `;
+            
+            if (message) {
+                // 2人対戦モード：勝敗メッセージを表示
+                const lines = message.split('\n');
+                gameEndMessage.innerHTML = `
+                    <div class="game-end-title">🎉 ゲーム終了！ 🎉</div>
+                    <div class="game-end-score" style="font-size: 2rem; line-height: 1.8;">${lines.map(line => line + '<br>').join('')}</div>
+                    <div class="game-end-subtitle">お疲れ様でした！</div>
+                `;
+            } else {
+                // 1人モード：通常の表示
+                gameEndMessage.innerHTML = `
+                    <div class="game-end-title">🎉 ゲーム終了！ 🎉</div>
+                    <div class="game-end-score">${totalScore}点</div>
+                    <div class="game-end-subtitle">お疲れ様でした！</div>
+                `;
+            }
             scoreboard.parentNode.insertBefore(gameEndMessage, scoreboard.nextSibling);
         }
 
         // ゲームをリセット
         function resetGame() {
             if (confirm('ゲームをリセットしますか？')) {
-                dice = [1, 1, 1, 1, 1];
-                held = [false, false, false, false, false];
-                rollsLeft = 3;
-                currentRound = 1;
-                scores = {
-                    'ワンペア': null,
-                    'ツーペア': null,
-                    'スリーダイス': null,
-                    'フォーダイス': null,
-                    'フルハウス': null,
-                    'スモールストレート': null,
-                    'ラージストレート': null,
-                    'ヨット': null,
-                    'チャンス': null
-                };
-                document.getElementById('rollsLeft').textContent = rollsLeft;
-                document.getElementById('currentRound').textContent = currentRound;
-                document.getElementById('rollButton').disabled = false;
+                initializeGame(gameMode);
                 
                 // ゲーム終了メッセージを削除
                 const gameEndMessage = document.getElementById('gameEndMessage');
                 if (gameEndMessage) {
                     gameEndMessage.remove();
                 }
-                
-                updateDiceDisplay();
-                updateScoreboard();
             }
         }
 
@@ -1126,6 +1614,88 @@
                 document.querySelectorAll('.info-icon').forEach(icon => {
                     icon.classList.remove('active');
                 });
+            }
+        }
+
+        // 難易度選択メニューを表示
+        function showDifficultyMenu() {
+            const difficultyMenu = document.getElementById('difficultyMenu');
+            difficultyMenu.classList.toggle('active');
+        }
+
+        // ゲーム開始
+        function startGame(mode) {
+            // スタート画面を非表示
+            document.getElementById('start-screen').style.display = 'none';
+            // ゲーム画面を表示
+            document.getElementById('game-screen').classList.add('active');
+            // ゲームモードを保存
+            gameMode = mode;
+            window.gameMode = mode;
+            
+            // ゲーム初期化
+            initializeGame(mode);
+            
+            // 難易度選択メニューを非表示に（CPU対戦の場合）
+            const difficultyMenu = document.getElementById('difficultyMenu');
+            if (difficultyMenu) {
+                difficultyMenu.classList.remove('active');
+            }
+        }
+
+        // ゲーム初期化
+        function initializeGame(mode) {
+            // プレイヤー1から開始
+            currentPlayer = 1;
+            currentRound = 1;
+            dice = [1, 1, 1, 1, 1];
+            held = [false, false, false, false, false];
+            rollsLeft = 3;
+            
+            // 2人対戦モードの場合、プレイヤー2のスコアをリセット
+            if (mode === 'two') {
+                playerScores[2] = {
+                    'ワンペア': null,
+                    'ツーペア': null,
+                    'スリーダイス': null,
+                    'フォーダイス': null,
+                    'フルハウス': null,
+                    'スモールストレート': null,
+                    'ラージストレート': null,
+                    'ヨット': null,
+                    'チャンス': null
+                };
+            }
+            
+            // スコアを現在のプレイヤーに設定
+            scores = playerScores[currentPlayer];
+            
+            // ターン表示を更新
+            updateTurnDisplay();
+            
+            // 表示を更新
+            updateDiceDisplay();
+            updateScoreboard();
+            document.getElementById('rollsLeft').textContent = rollsLeft;
+            document.getElementById('currentRound').textContent = currentRound;
+            document.getElementById('rollButton').disabled = false;
+        }
+
+        // ターン表示を更新
+        function updateTurnDisplay() {
+            const turnDisplay = document.getElementById('turnDisplay');
+            
+            if (gameMode === 'single') {
+                turnDisplay.classList.add('hidden');
+            } else if (gameMode === 'two') {
+                turnDisplay.classList.remove('hidden');
+                if (currentPlayer === 1) {
+                    turnDisplay.className = 'turn-display player1';
+                    turnDisplay.textContent = 'Player 1\'s Turn';
+                } else {
+                    turnDisplay.className = 'turn-display player2';
+                    turnDisplay.textContent = 'Player 2\'s Turn';
+                }
             }
         }
 
