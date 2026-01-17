@@ -1547,12 +1547,26 @@
             return hold;
         }
 
-        // CPUが選ぶべき最適な役を計算（得点期待値に基づく）
+        // 役の希少度を定義（数値が高いほど希少）
+        const rarityScores = {
+            'ヨット': 10,
+            'ラージストレート': 9,
+            'フルハウス': 8,
+            'フォーダイス': 7,
+            'スモールストレート': 6,
+            'スリーダイス': 5,
+            'ツーペア': 4,
+            'ワンペア': 3,
+            'チャンス': 1
+        };
+
+        // CPUが選ぶべき最適な役を計算（得点期待値と希少度に基づく）
         function calculateBestMove(calculatedScores) {
             const availableMoves = [];
             for (let [name, score] of Object.entries(calculatedScores)) {
                 if (scores[name] === null) {
-                    availableMoves.push({ name, score });
+                    const rarity = rarityScores[name] || 1;
+                    availableMoves.push({ name, score, rarity });
                 }
             }
             
@@ -1560,11 +1574,8 @@
                 return { name: 'チャンス', score: calculatedScores['チャンス'] };
             }
             
-            // 得点期待値に基づいて最適な役を選択
+            // 得点期待値と希少度に基づいて最適な役を選択
             // 1. 高得点の固定スコア役を優先（ヨット、ラージストレート、フルハウス）
-            // 2. 次に、現在のスコアが高い役を優先
-            // 3. 残りの役も考慮して、バランス良く選択
-            
             const highValueCategories = ['ヨット', 'ラージストレート', 'フルハウス'];
             for (let category of highValueCategories) {
                 const move = availableMoves.find(m => m.name === category && m.score > 0);
@@ -1573,16 +1584,37 @@
                 }
             }
             
-            // スコアが高い役を優先
-            availableMoves.sort((a, b) => b.score - a.score);
-            
-            // スコアが30以上の役があれば優先
+            // 2. スコアが30以上の役を優先（希少度も考慮）
             const highScoreMoves = availableMoves.filter(m => m.score >= 30);
             if (highScoreMoves.length > 0) {
+                // スコアが同じ場合は希少度が高いものを優先
+                highScoreMoves.sort((a, b) => {
+                    if (b.score !== a.score) {
+                        return b.score - a.score; // スコアが高い順
+                    }
+                    return b.rarity - a.rarity; // スコアが同じなら希少度が高い順
+                });
                 return highScoreMoves[0];
             }
             
-            // それ以外は最もスコアが高い役を選択
+            // 3. スコアが0より大きい役の中で、希少度を優先的に考慮
+            const positiveScoreMoves = availableMoves.filter(m => m.score > 0);
+            if (positiveScoreMoves.length > 0) {
+                // まず希少度でソート、次にスコアでソート
+                positiveScoreMoves.sort((a, b) => {
+                    // 希少度が高い順
+                    if (b.rarity !== a.rarity) {
+                        return b.rarity - a.rarity;
+                    }
+                    // 希少度が同じならスコアが高い順
+                    return b.score - a.score;
+                });
+                return positiveScoreMoves[0];
+            }
+            
+            // 4. 全てスコアが0の場合、チャンスを選択（希少度が最も低い）
+            // ただし、チャンスが既に記録済みの場合は、最も希少度が高い役を選択
+            availableMoves.sort((a, b) => b.rarity - a.rarity);
             return availableMoves[0];
         }
 
@@ -1629,6 +1661,44 @@
         // ゲームをリセット
         function resetGame() {
             if (confirm('ゲームをリセットしますか？')) {
+                // ゲーム状態を完全にリセット
+                currentPlayer = 1;
+                currentRound = 1;
+                dice = [1, 1, 1, 1, 1];
+                held = [false, false, false, false, false];
+                rollsLeft = 3;
+                
+                // プレイヤー1のスコアをリセット
+                playerScores[1] = {
+                    'ワンペア': null,
+                    'ツーペア': null,
+                    'スリーダイス': null,
+                    'フォーダイス': null,
+                    'フルハウス': null,
+                    'スモールストレート': null,
+                    'ラージストレート': null,
+                    'ヨット': null,
+                    'チャンス': null
+                };
+                
+                // プレイヤー2のスコアをリセット（2人対戦モード・CPU対戦モードの場合）
+                if (gameMode === 'two' || gameMode.startsWith('cpu-')) {
+                    playerScores[2] = {
+                        'ワンペア': null,
+                        'ツーペア': null,
+                        'スリーダイス': null,
+                        'フォーダイス': null,
+                        'フルハウス': null,
+                        'スモールストレート': null,
+                        'ラージストレート': null,
+                        'ヨット': null,
+                        'チャンス': null
+                    };
+                }
+                
+                // スコア参照をリセット
+                scores = playerScores[1];
+                
                 // 全モードでスタート画面に戻る
                 // ゲーム画面を非表示
                 document.getElementById('game-screen').classList.remove('active');
@@ -1774,6 +1844,19 @@
             dice = [1, 1, 1, 1, 1];
             held = [false, false, false, false, false];
             rollsLeft = 3;
+            
+            // プレイヤー1のスコアをリセット（全モード共通）
+            playerScores[1] = {
+                'ワンペア': null,
+                'ツーペア': null,
+                'スリーダイス': null,
+                'フォーダイス': null,
+                'フルハウス': null,
+                'スモールストレート': null,
+                'ラージストレート': null,
+                'ヨット': null,
+                'チャンス': null
+            };
             
             // 2人対戦モード・CPU対戦モードの場合、プレイヤー2のスコアをリセット
             if (mode === 'two' || mode.startsWith('cpu-')) {
