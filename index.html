@@ -940,8 +940,16 @@
                 createConfetti();
             }
             
-            // ラウンドを進める
-            currentRound++;
+            // 全て記録済みかチェック
+            const isGameEnd = Object.values(scores).every(s => s !== null);
+            
+            // ゲーム終了でない場合のみラウンドを進める（最終ラウンドは9で止める）
+            if (!isGameEnd) {
+                currentRound++;
+            } else {
+                // ゲーム終了時はラウンドを9に固定
+                currentRound = 9;
+            }
             document.getElementById('currentRound').textContent = currentRound;
             
             rollsLeft = 3;
@@ -951,8 +959,8 @@
             updateDiceDisplay();
             updateScoreboard();
 
-            // 全て記録済みかチェック
-            if (Object.values(scores).every(s => s !== null)) {
+            // 全て記録済みの場合、ゲーム終了処理
+            if (isGameEnd) {
                 setTimeout(() => {
                     const total = Object.values(scores).reduce((a, b) => a + b, 0);
                     // ゲーム終了時に紙吹雪を大量に表示
