@@ -1440,7 +1440,7 @@
                     
                     // サイコロを振った後、ホールドするサイコロを決定（最後の振り直し以外）
                     if (rollsLeft > 0 && cpuRollCount < 3) {
-                        const shouldHold = calculateCPUHold();
+                        const shouldHold = calculateCPUHold(scores);
                         for (let i = 0; i < 5; i++) {
                             held[i] = shouldHold[i];
                         }
@@ -1458,8 +1458,13 @@
             }, 1500);
         }
 
-        // CPUがホールドするべきサイコロを計算（得点期待値に基づく）
-        function calculateCPUHold() {
+        // CPUがホールドするべきサイコロを計算（得点期待値に基づく、既に埋まった役を除外）
+        function calculateCPUHold(currentScores) {
+            // 記録可能な役を取得（既に埋まった役を除外）
+            const availableCategories = Object.keys(currentScores).filter(
+                name => currentScores[name] === null
+            );
+            
             // サイコロの目の出現回数をカウント
             const counts = [0, 0, 0, 0, 0, 0];
             for (let die of dice) {
@@ -1470,67 +1475,126 @@
             const maxCount = Math.max(...counts);
             const maxValue = counts.indexOf(maxCount) + 1;
             
-            // 得点期待値に基づいてホールドを決定
-            // 1. 3つ以上揃っている目をホールド（スリーダイス、フォーダイス、フルハウス、ヨットを狙う）
+            // 記録可能な役に基づいてホールドを決定
+            
+            // ヨットを狙える場合（まだ記録されていない）
+            const canAimForYacht = availableCategories.includes('ヨット');
+            // フォーダイスを狙える場合
+            const canAimForFour = availableCategories.includes('フォーダイス');
+            // スリーダイスを狙える場合
+            const canAimForThree = availableCategories.includes('スリーダイス');
+            // フルハウスを狙える場合
+            const canAimForFullHouse = availableCategories.includes('フルハウス');
+            // ツーペアを狙える場合
+            const canAimForTwoPair = availableCategories.includes('ツーペア');
+            // ストレート系を狙える場合
+            const canAimForStraight = availableCategories.includes('スモールストレート') || 
+                                     availableCategories.includes('ラージストレート');
+            
+            // 1. 3つ以上揃っている目がある場合
             if (maxCount >= 3) {
-                for (let i = 0; i < 5; i++) {
-                    if (dice[i] === maxValue) {
-                        hold[i] = true;
+                // フォーダイスやヨットを狙える場合、3つ以上の目をホールド
+                if (canAimForFour || canAimForYacht) {
+                    for (let i = 0; i < 5; i++) {
+                        if (dice[i] === maxValue) {
+                            hold[i] = true;
+                        }
+                    }
+                } else if (canAimForThree) {
+                    // スリーダイスしか狙えない場合でも、3つ以上あるならホールド
+                    for (let i = 0; i < 5; i++) {
+                        if (dice[i] === maxValue) {
+                            hold[i] = true;
+                        }
                     }
                 }
             } else if (maxCount >= 2) {
-                // 2つ揃っている目をホールド（ツーペア、スリーダイスを狙う）
-                for (let i = 0; i < 5; i++) {
-                    if (dice[i] === maxValue) {
-                        hold[i] = true;
-                    }
-                }
+                // 2. 2つ揃っている目がある場合
                 
-                // もう1つのペアがあるかチェック（ツーペアを狙う）
-                for (let value = 6; value >= 1; value--) {
-                    if (value !== maxValue && counts[value - 1] >= 2) {
-                        for (let i = 0; i < 5; i++) {
-                            if (dice[i] === value) {
-                                hold[i] = true;
-                            }
+                // スリーダイス、フォーダイス、ヨットを狙える場合、2つ揃っている目をホールド
+                if (canAimForThree || canAimForFour || canAimForYacht) {
+                    for (let i = 0; i < 5; i++) {
+                        if (dice[i] === maxValue) {
+                            hold[i] = true;
                         }
-                        break;
                     }
                 }
-            } else {
-                // ストレートを狙える場合は、連続した目を優先
-                const unique = [...new Set(dice)].sort();
-                let hasConsecutive = false;
                 
-                // 連続した4つ以上があるかチェック
-                for (let i = 0; i <= unique.length - 4; i++) {
-                    let consecutiveCount = 1;
-                    for (let j = i; j < unique.length - 1; j++) {
-                        if (unique[j + 1] - unique[j] === 1) {
-                            consecutiveCount++;
-                        } else {
+                // フルハウスを狙える場合、もう1つのペアもホールド
+                if (canAimForFullHouse) {
+                    for (let value = 6; value >= 1; value--) {
+                        if (value !== maxValue && counts[value - 1] >= 2) {
+                            for (let i = 0; i < 5; i++) {
+                                if (dice[i] === value) {
+                                    hold[i] = true;
+                                }
+                            }
                             break;
                         }
                     }
-                    if (consecutiveCount >= 4) {
-                        hasConsecutive = true;
-                        // 連続した目をホールド
-                        for (let k = i; k < i + consecutiveCount; k++) {
+                } else if (canAimForTwoPair) {
+                    // ツーペアを狙える場合（フルハウスは埋まっている）
+                    for (let value = 6; value >= 1; value--) {
+                        if (value !== maxValue && counts[value - 1] >= 2) {
+                            for (let i = 0; i < 5; i++) {
+                                if (dice[i] === value) {
+                                    hold[i] = true;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            } else {
+                // 3. ペアがない場合
+                
+                // ストレートを狙える場合は、連続した目を優先
+                if (canAimForStraight) {
+                    const unique = [...new Set(dice)].sort();
+                    let hasConsecutive = false;
+                    
+                    // 連続した4つ以上があるかチェック
+                    for (let i = 0; i <= unique.length - 4; i++) {
+                        let consecutiveCount = 1;
+                        for (let j = i; j < unique.length - 1; j++) {
+                            if (unique[j + 1] - unique[j] === 1) {
+                                consecutiveCount++;
+                            } else {
+                                break;
+                            }
+                        }
+                        if (consecutiveCount >= 4) {
+                            hasConsecutive = true;
+                            // 連続した目をホールド
+                            for (let k = i; k < i + consecutiveCount; k++) {
+                                for (let idx = 0; idx < 5; idx++) {
+                                    if (dice[idx] === unique[k]) {
+                                        hold[idx] = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    
+                    // ストレートが見つからなかった場合、高い目を優先的にホールド
+                    if (!hasConsecutive) {
+                        const sortedDice = [...dice].sort((a, b) => b - a);
+                        const holdCount = Math.min(3, 5);
+                        for (let i = 0; i < holdCount; i++) {
+                            const highValue = sortedDice[i];
                             for (let idx = 0; idx < 5; idx++) {
-                                if (dice[idx] === unique[k]) {
+                                if (dice[idx] === highValue && !hold[idx]) {
                                     hold[idx] = true;
                                     break;
                                 }
                             }
                         }
-                        break;
                     }
-                }
-                
-                // ストレートがない場合、高い目を優先的にホールド（チャンスのため）
-                if (!hasConsecutive) {
+                } else {
+                    // ストレート系が全て埋まっている場合、高い目を優先的にホールド（チャンスのため）
                     const sortedDice = [...dice].sort((a, b) => b - a);
-                    // 高い目から順に2-3個をホールド
                     const holdCount = Math.min(3, 5);
                     for (let i = 0; i < holdCount; i++) {
                         const highValue = sortedDice[i];
