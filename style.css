@@ -1,0 +1,135 @@
+/* style.css - 高級ヨットカジノ風デザイン Ver.1 */
+
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    /* 背景を夕暮れの海に変更（フリー素材の仮URLです） */
+    background-image: url('https://images.unsplash.com/photo-1524135220673-c7316022639c?q=80&w=2070&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #fff; /* 基本の文字色を白に */
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    /* ゲーム盤を「青いフェルトのテーブル」に見立てる */
+    background-color: #0a2647; /* 深いカジノブルー */
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 
+        0 10px 30px rgba(0,0,0,0.5), /* 外側の影 */
+        inset 0 0 20px rgba(0,0,0,0.3); /* 内側の影でフェルト感を出す */
+    border: 4px solid #d4af37; /* ゴールドの縁取り */
+    max-width: 500px;
+    width: 100%;
+    backdrop-filter: blur(5px); /* 背景を少しぼかす */
+}
+
+h1 {
+    text-align: center;
+    color: #d4af37; /* タイトルをゴールドに */
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    margin-bottom: 25px;
+}
+
+/* ダイス表示エリア */
+#dice-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: rgba(0, 0, 0, 0.2); /* 少し暗くしてダイスを目立たせる */
+    border-radius: 10px;
+    border: 2px solid #d4af37;
+}
+
+.die {
+    font-size: 48px;
+    margin: 0 5px;
+    color: #fff; /* ダイスの色を白に（後で画像に変えます） */
+    text-shadow: 1px 1px 2px #000;
+}
+
+/* ボタンのデザイン */
+button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+    /* ゴールドのグラデーションボタン */
+    background: linear-gradient(to bottom, #d4af37, #a67c00);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+button:hover {
+    background: linear-gradient(to bottom, #eac767, #b88a00);
+}
+
+button:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+button:disabled {
+    background: #555;
+    color: #888;
+    cursor: not-allowed;
+}
+
+/* スコアシートのエリア */
+.score-sheet {
+    margin-top: 25px;
+    border-top: 2px solid rgba(212, 175, 55, 0.5); /* 薄いゴールドの区切り線 */
+    padding-top: 20px;
+}
+
+/* 各役の行のデザイン */
+.score-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    /* バナーにあるような「光るブルーのパネル」風 */
+    background: linear-gradient(to right, rgba(10, 38, 71, 0.8), rgba(20, 60, 100, 0.8));
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.score-row:hover {
+    background: linear-gradient(to right, rgba(20, 60, 100, 0.9), rgba(30, 80, 130, 0.9));
+    border-color: #d4af37;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.5); /* ゴールドに光らせる */
+}
+
+/* 確定済みの行 */
+.score-row.locked {
+    background: rgba(0, 0, 0, 0.4);
+    border-color: #555;
+    color: #aaa;
+    cursor: default;
+    box-shadow: none;
+}
+
+.score-name {
+    font-weight: bold;
+}
+
+.score-value {
+    font-size: 18px;
+    color: #d4af37; /* 得点をゴールドに */
+}
