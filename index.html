@@ -16,7 +16,64 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            padding-top: 80px; /* top-ad-bannerのための余白 */
             color: #333;
+        }
+
+        /* 広告枠のスタイル */
+        .ad-banner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e0e0e0;
+            border: 1px solid #ccc;
+            position: relative;
+        }
+
+        .ad-banner::after {
+            content: 'Advertisement';
+            position: absolute;
+            font-size: 10px;
+            color: #999;
+            text-align: center;
+        }
+
+        /* top-ad-banner: 最上部に固定 */
+        .top-ad-banner {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 320px;
+            height: 50px;
+            z-index: 1001;
+        }
+
+        /* result-ad-banner: ゲーム終了画面に表示 */
+        .result-ad-banner {
+            width: 300px;
+            height: 250px;
+            margin: 30px auto;
+        }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 480px) {
+            body {
+                padding-top: 70px; /* スマホでは少し小さい余白 */
+            }
+
+            .top-ad-banner {
+                width: 100%;
+                max-width: 320px;
+                height: 50px;
+            }
+
+            .result-ad-banner {
+                width: 100%;
+                max-width: 300px;
+                height: 250px;
+                margin: 20px auto;
+            }
         }
 
         /* スタート画面 */
@@ -25,8 +82,9 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
+            min-height: calc(100vh - 80px); /* top-ad-bannerの分を差し引く */
             padding: 20px;
+            padding-top: 0; /* bodyのpadding-topと重複しないように */
         }
 
         .start-container {
@@ -185,6 +243,7 @@
             border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             padding: 30px 20px;
+            padding-bottom: 40px; /* フッターのための余白を増やす */
             position: relative;
         }
 
@@ -897,10 +956,17 @@
             .game-end-score {
                 font-size: 2.5rem;
             }
+
+            .container {
+                padding-bottom: 30px; /* スマホでは少し小さい余白 */
+            }
         }
     </style>
 </head>
 <body>
+    <!-- top-ad-banner: 最上部に固定 -->
+    <div class="ad-banner top-ad-banner" id="topAdBanner"></div>
+
     <!-- スタート画面 -->
     <div id="start-screen">
         <div class="start-container">
@@ -1797,6 +1863,12 @@
                 `;
             }
             scoreboard.parentNode.insertBefore(gameEndMessage, scoreboard.nextSibling);
+            
+            // result-ad-bannerをゲーム終了メッセージの下に追加
+            const resultAdBanner = document.createElement('div');
+            resultAdBanner.className = 'ad-banner result-ad-banner';
+            resultAdBanner.id = 'resultAdBanner';
+            gameEndMessage.parentNode.insertBefore(resultAdBanner, gameEndMessage.nextSibling);
         }
 
         // ゲームをリセット
@@ -1850,6 +1922,12 @@
                 const gameEndMessage = document.getElementById('gameEndMessage');
                 if (gameEndMessage) {
                     gameEndMessage.remove();
+                }
+                
+                // result-ad-bannerを削除
+                const resultAdBanner = document.getElementById('resultAdBanner');
+                if (resultAdBanner) {
+                    resultAdBanner.remove();
                 }
             }
         }
