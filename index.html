@@ -1807,9 +1807,10 @@
             }
             scoreboard.parentNode.insertBefore(gameEndMessage, scoreboard.nextSibling);
             
-            // URLに?status=finishを付けてリロード
-            const currentUrl = window.location.href.split('?')[0];
-            window.location.href = currentUrl + '?status=finish';
+            // 「game_finish」というイベント（出来事）をVercelに送る
+            if (window.va) {
+                window.va('event', { name: 'game_finish' });
+            }
         }
 
         // ゲームをリセット
