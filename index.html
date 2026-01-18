@@ -1806,6 +1806,10 @@
                 `;
             }
             scoreboard.parentNode.insertBefore(gameEndMessage, scoreboard.nextSibling);
+            
+            // URLに?status=finishを付けてリロード
+            const currentUrl = window.location.href.split('?')[0];
+            window.location.href = currentUrl + '?status=finish';
         }
 
         // ゲームをリセット
