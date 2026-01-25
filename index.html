@@ -6,12 +6,12 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="ヨット (Yacht) - 1分で遊べるダイスゲーム">
     <meta name="twitter:description" content="シンプルだけど熱くなる！ブラウザで今すぐ遊べるダイスゲーム。あなたの運と戦略を試そう。">
-    <meta name="twitter:image" content="https://yatch-game-rose.vercel.app/og-image.jpg">
+    <meta name="twitter:image" content="https://yacht-dice.com/og-image.jpg">
 
     <meta property="og:title" content="ヨット (Yacht) - 1分で遊べるダイスゲーム">
     <meta property="og:description" content="スマホでサクサク遊べるダイスゲーム。究極の暇つぶしを。">
-    <meta property="og:image" content="https://yatch-game-rose.vercel.app/og-image.jpg">
-    <meta property="og:url" content="https://yatch-game-rose.vercel.app/">
+    <meta property="og:image" content="https://yacht-dice.com/og-image.jpg">
+    <meta property="og:url" content="https://yacht-dice.com/">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
@@ -45,39 +45,30 @@
         .start-container {
             max-width: 600px;
             width: 100%;
-            background: linear-gradient(145deg, #f5f5f5 0%, #e8e8e8 100%);
-            border: 3px solid #d4af37;
+            background: rgba(255, 255, 245, 0.95);
+            border: 2px solid #d4af37;
             border-radius: 30px;
             box-shadow: 
                 0 20px 60px rgba(0, 0, 0, 0.5),
                 0 0 30px rgba(212, 175, 55, 0.3),
                 inset 0 2px 10px rgba(255, 255, 255, 0.8);
-            padding: 60px 40px;
+            padding: 50px 40px 60px 40px;
             text-align: center;
         }
 
-        .start-title {
-            font-family: "Noto Sans JP", sans-serif;
-            font-size: 3rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #b8941f 0%, #d4af37 50%, #c9a227 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 20px;
-            line-height: 1.2;
-            text-shadow: 
-                0 0 15px rgba(184, 148, 31, 0.4),
-                0 3px 6px rgba(0, 0, 0, 0.3),
-                0 0 0 2px rgba(184, 148, 31, 0.3),
-                0 0 0 4px rgba(0, 0, 0, 0.2);
-            filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.4));
-            letter-spacing: 0.05em;
+        .main-logo {
+            width: 90%;
+            max-width: 500px;
+            height: auto;
+            display: block;
+            margin: 0 auto 30px auto;
+            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.4));
         }
 
         @media (max-width: 480px) {
-            .start-title {
-                font-size: 2rem;
+            .main-logo {
+                width: 85%;
+                margin-bottom: 25px;
             }
 
             .start-container {
@@ -1039,7 +1030,7 @@
     <!-- スタート画面 -->
     <div id="start-screen">
         <div class="start-container">
-            <div class="start-title">🎲 ヨット 🎲</div>
+            <img src="main-logo.png?v=2" alt="YACHT GAME" class="main-logo">
             <div class="start-subtitle">あなたの運と判断力が試される、サイコロゲーム</div>
             <button class="start-rule-button" onclick="showHelpModal()">📖 遊び方</button>
             <div class="mode-buttons">
